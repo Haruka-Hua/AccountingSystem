@@ -1,10 +1,11 @@
-import enum
+from enum import Enum
 from abc import ABC, abstractmethod
 from Transaction import *
 from pathlib import Path
 import csv
 
-class AccountType(enum):
+
+class AccountType(Enum):
     DEFAULT = 0
     ASSET = 1
     LIABILITY = 2
@@ -13,42 +14,64 @@ class AccountType(enum):
     EXPENSE = 5
     PROFIT = 6
 
+
 class Account(ABC):
     accountType: AccountType
     name: str
     balance: float
     filePath: Path
+    header:list[str] = ["date", "abstract", "debit", "credit", "balance"]
 
     @abstractmethod
-    def handleTransaction(self,transaction:Transaction):
+    def handleCreditTransaction(self, transaction: Transaction):
+        pass
+
+    @abstractmethod
+    def handleDebitTransaction(self,transaction: Transaction):
         pass
 
 class CreditAccount(Account):
-    def __init__(self, accountType:AccountType, name:str, initialBalance:float):
+    def __init__(self, accountType: AccountType, name: str, initialBalance: float):
         self.accountType = accountType
         self.name = name
         self.balance = initialBalance
         self.filePath = Path(f"data/accounts/{name}.csv")
-        with open(self.filePath,"w",newline="") as fp:
+        with open(self.filePath, "w+", newline="") as fp:
             writer = csv.writer(fp)
-            writer.writerow(["date","abstract","debit","credit","balance"])
-            writer.writerow(["-","期初余额",None,initialBalance,initialBalance])
+            writer.writerow(self.header)
+            writer.writerow(["-", "期初余额", None, initialBalance, initialBalance])
 
-    def handleTransaction(self,transaction:Transaction):
-        #todo
-        return
+    def handleCreditTransaction(self, transaction: Transaction):
+        with open(self.filePath,"a+",newline="") as fp:
+            writer = csv.writer(fp)
+            self.balance += transaction.amount
+            writer.writerow([transaction.date,transaction.abstract,transaction.amount,None,self.balance])
+
+    def handleDebitTransaction(self,transaction: Transaction):
+        with open(self.filePath,"a+",newline="") as fp:
+            writer = csv.writer(fp)
+            self.balance -= transaction.amount
+            writer.writerow([transaction.date,transaction.abstract,None,transaction.amount,self.balance])
 
 class DebitAccount(Account):
-    def __init__(self, accountType:AccountType, name:str, initialBalance:float):
+    def __init__(self, accountType: AccountType, name: str, initialBalance: float):
         self.accountType = accountType
         self.name = name
         self.balance = initialBalance
         self.filePath = Path(f"data/accounts/{name}.csv")
-        with open(self.filePath,"w",newline="") as fp:
+        with open(self.filePath, "w+", newline="") as fp:
             writer = csv.writer(fp)
-            writer.writerow(["date","abstract","debit","credit","balance"])
-            writer.writerow(["-","期初余额",initialBalance,None,initialBalance])
+            writer.writerow(self.header)
+            writer.writerow(["-", "期初余额", initialBalance, None, initialBalance])
 
-    def handleTransaction(self,transaction:Transaction):
-        #todo
-        return
+    def handleCreditTransaction(self, transaction: Transaction):
+        with open(self.filePath,"a+",newline="") as fp:
+            writer = csv.writer(fp)
+            self.balance -= transaction.amount
+            writer.writerow([transaction.date,transaction.abstract,transaction.amount,None,self.balance])
+
+    def handleDebitTransaction(self,transaction: Transaction):
+        with open(self.filePath,"a+",newline="") as fp:
+            writer = csv.writer(fp)
+            self.balance += transaction.amount
+            writer.writerow([transaction.date,transaction.abstract,None,transaction.amount,self.balance])
