@@ -3,7 +3,8 @@ from Transaction import *
 from src.userInterface.CommandLine import *
 from src.utils.Analyzer import *
 from src.utils.Reporter import *
-
+import pandas
+import os
 
 class Company:
     name: str
@@ -21,8 +22,24 @@ class Company:
         reporter = Reporter(self)
         report = Report()
 
-    def initAccounts(self):
-        #todo: initialize a few accounts, must check if the amount is balanced
+    def initAccounts(self,accountInfo: pandas.DataFrame):
+        for index, row in accountInfo.iterrows():
+            accountType: AccountType = accountTypeConvert(row["accountType"])
+            name: str = row["name"]
+            initialBalance: float = float(row["initialBalance"])
+            self.createAccount(accountType, name, initialBalance)
+        #check balance
+        count: float = 0.0
+        for account in self.accounts:
+            if account is CreditAccount:
+                count += account.balance
+            elif account is DebitAccount:
+                count -= account.balance
+        if not count == 0.0:
+            print("Opps, the initial accounts are not balanced. Please check the data.")
+            for account in self.accounts:
+                os.remove(account.filePath)
+            self.accounts.clear()
         return
 
     def createAccount(self, accountType: AccountType, name: str, initialBalance: float):
@@ -49,7 +66,7 @@ class Company:
             ans = input(f"{transaction.debitAccountName} does not exist. Do you want to create it?(Y/N)")
             if ans == "Y":
                 accountType: str = input("Type of the account: ")
-                command:Command = Command("create-account",{"accountType":accountType,"name":transaction.creditAccountName})
+                command:Command = Command("create-account",{"accountType":accountType,"name":transaction.debitAccountName})
                 self.executeCommand(command)
             else:
                 return False
@@ -79,5 +96,38 @@ class Company:
         self.analyzer.analyze()
 
     def executeCommand(self,command:Command):
-        #todo: execute a command
+        if command.opt == "initialize-accounts":
+            filePath = Path(command.args["filePath"])
+            accountsInfo: pandas.DataFrame = pandas.read_csv(filePath)
+            self.initAccounts(accountsInfo)
+
+        elif command.opt == "create-account":
+            accountType: AccountType = accountTypeConvert(command.args["accountType"])
+            name: str = command.args["name"]
+            self.createAccount(accountType,name,0.0)
+
+        elif command.opt == "transaction":
+            date: datetime = datetime.strptime(command.args["date"],"%Y-%m-%d")
+            abstract: str = command.args["abstract"]
+            creditAccountName: str = command.args["credit"]
+            debitAccountName: str = command.args["debit"]
+            amount: float = float(command.args["amount"])
+            transaction = Transaction(len(self.transactions), date, abstract, creditAccountName, debitAccountName, amount)
+            self.handleTransaction(transaction)
+
+        elif command.opt == "file-transactions":
+            filePath = Path(command.args["filePath"])
+            #todo: read transactions from file and handle them
+
+        elif command.opt == "report":
+            self.formReport()
+            self.displayReport()
+
+        elif command.opt == "analyze":
+            self.analyzeData()
+
+        elif command.opt == "help":
+            print("This is a help message.")
+            #todo: print help message
+
         return

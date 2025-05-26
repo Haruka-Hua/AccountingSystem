@@ -26,9 +26,6 @@ class CommandLine:
         #create account
         options.append("create-account")
         optArgs.append(["accountType","name"])
-        #simple create account
-        options.append("simple-create-account")
-        optArgs.append(["accountType"])
         #add transaction
         options.append("transaction")
         optArgs.append(["date","abstract","credit","debit","amount"])
@@ -37,6 +34,9 @@ class CommandLine:
         optArgs.append(["filePath"])
         #form report
         options.append("report")
+        optArgs.append([])
+        #analyze data
+        options.append("analyze")
         optArgs.append([])
         #print help
         options.append("help")
@@ -47,6 +47,7 @@ class CommandLine:
         self.readLine(message)
         self.parseLine()
         if not self.opt in self.optionInfo:
+            print(f"Invalid option: {self.opt}. Type 'help' for available commands.")
             return None
         return self.createCommand()
 

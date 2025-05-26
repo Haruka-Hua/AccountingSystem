@@ -14,13 +14,29 @@ class AccountType(Enum):
     EXPENSE = 5
     PROFIT = 6
 
+def accountTypeConvert(accType: str) -> AccountType:
+    accType = accType.lower()
+    if accType == "asset":
+        return AccountType.ASSET
+    elif accType == "liability":
+        return AccountType.LIABILITY
+    elif accType == "owners-equity":
+        return AccountType.OWNERS_EQUITY
+    elif accType == "revenue":
+        return AccountType.REVENUE
+    elif accType == "expense":
+        return AccountType.EXPENSE
+    elif accType == "profit":
+        return AccountType.PROFIT
+    else:
+        return AccountType.DEFAULT
 
 class Account(ABC):
     accountType: AccountType
     name: str
     balance: float
     filePath: Path
-    header:list[str] = ["date", "abstract", "debit", "credit", "balance"]
+    header:list[str] = ["No.","date", "abstract", "debit", "credit", "balance"]
 
     @abstractmethod
     def handleCreditTransaction(self, transaction: Transaction):
@@ -39,19 +55,19 @@ class CreditAccount(Account):
         with open(self.filePath, "w+", newline="") as fp:
             writer = csv.writer(fp)
             writer.writerow(self.header)
-            writer.writerow(["-", "期初余额", None, initialBalance, initialBalance])
+            writer.writerow([None, None, "期初余额", None, initialBalance, initialBalance])
 
     def handleCreditTransaction(self, transaction: Transaction):
         with open(self.filePath,"a+",newline="") as fp:
             writer = csv.writer(fp)
             self.balance += transaction.amount
-            writer.writerow([transaction.date,transaction.abstract,transaction.amount,None,self.balance])
+            writer.writerow([transaction.index,transaction.date,transaction.abstract,transaction.amount,None,self.balance])
 
     def handleDebitTransaction(self,transaction: Transaction):
         with open(self.filePath,"a+",newline="") as fp:
             writer = csv.writer(fp)
             self.balance -= transaction.amount
-            writer.writerow([transaction.date,transaction.abstract,None,transaction.amount,self.balance])
+            writer.writerow([transaction.index,transaction.date,transaction.abstract,None,transaction.amount,self.balance])
 
 class DebitAccount(Account):
     def __init__(self, accountType: AccountType, name: str, initialBalance: float):
@@ -62,16 +78,16 @@ class DebitAccount(Account):
         with open(self.filePath, "w+", newline="") as fp:
             writer = csv.writer(fp)
             writer.writerow(self.header)
-            writer.writerow(["-", "期初余额", initialBalance, None, initialBalance])
+            writer.writerow([None, None, "期初余额", initialBalance, None, initialBalance])
 
     def handleCreditTransaction(self, transaction: Transaction):
         with open(self.filePath,"a+",newline="") as fp:
             writer = csv.writer(fp)
             self.balance -= transaction.amount
-            writer.writerow([transaction.date,transaction.abstract,transaction.amount,None,self.balance])
+            writer.writerow([transaction.index,transaction.date,transaction.abstract,transaction.amount,None,self.balance])
 
     def handleDebitTransaction(self,transaction: Transaction):
         with open(self.filePath,"a+",newline="") as fp:
             writer = csv.writer(fp)
             self.balance += transaction.amount
-            writer.writerow([transaction.date,transaction.abstract,None,transaction.amount,self.balance])
+            writer.writerow([transaction.index,transaction.date,transaction.abstract,None,transaction.amount,self.balance])
