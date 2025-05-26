@@ -5,13 +5,14 @@ class Transaction:
     index: int
     date: datetime
     abstract: str
-    debitAccount: Account
-    creditAccount: Account
+    debitAccountName: str
+    creditAccountName: str
     amount: float
-    def __init__(self,index:int,date:datetime,abstract:str,creditAccount:Account,debitAccount:Account,amount:float):
+
+    def __init__(self,index:int,date:datetime,abstract:str,creditAccountName:str,debitAccountName:str,amount:float):
         self.index = index
         self.date = date
         self.abstract = abstract
-        self.debitAccount = debitAccount
-        self.creditAccount = creditAccount
+        self.creditAccountName = creditAccountName
+        self.debitAccountName = debitAccountName
         self.amount = amount
