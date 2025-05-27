@@ -119,7 +119,11 @@ class Company:
 
         elif command.opt == "file-transactions":
             filePath = Path(command.args["filePath"])
-            transactionsInfo: pandas.DataFrame = pandas.read_csv(filePath)
+            transactionsInfo: pandas.DataFrame = None
+            try:
+                transactionsInfo = pandas.read_csv(filePath)
+            except FileNotFoundError:
+                print("Sorry, the file does not exist, please check your spelling.")
             for index, row in transactionsInfo:
                 date: datetime = datetime.strptime(row["date"],"%Y-%m-%d")
                 abstract: str = row["abstract"]
