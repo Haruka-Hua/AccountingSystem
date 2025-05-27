@@ -1,3 +1,5 @@
+from pandas.core.interchange.dataframe_protocol import DataFrame
+
 from Account import *
 from Transaction import *
 from src.userInterface.CommandLine import *
@@ -117,7 +119,15 @@ class Company:
 
         elif command.opt == "file-transactions":
             filePath = Path(command.args["filePath"])
-            #todo: read transactions from file and handle them
+            transactionsInfo: pandas.DataFrame = pandas.read_csv(filePath)
+            for index, row in transactionsInfo:
+                date: datetime = datetime.strptime(row["date"],"%Y-%m-%d")
+                abstract: str = row["abstract"]
+                creditAccountName: str = row["credit"]
+                debitAccountName: str = row["debit"]
+                amount: float = float(row["amount"])
+                transaction = Transaction(len(self.transactions),date,abstract,creditAccountName,debitAccountName,amount)
+                self.handleTransaction(transaction)
 
         elif command.opt == "report":
             self.formReport()
