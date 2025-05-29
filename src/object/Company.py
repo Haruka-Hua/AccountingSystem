@@ -1,5 +1,3 @@
-from pandas.core.interchange.dataframe_protocol import DataFrame
-
 from Account import *
 from Transaction import *
 from src.userInterface.CommandLine import *
@@ -24,7 +22,7 @@ class Company:
         reporter = Reporter(self)
         report = Report()
 
-    def initAccounts(self,accountInfo: pandas.DataFrame):
+    def initAccounts(self,accountInfo: pandas.DataFrame)->bool:
         for index, row in accountInfo.iterrows():
             accountType: AccountType = accountTypeConvert(row["accountType"])
             name: str = row["name"]
@@ -37,12 +35,13 @@ class Company:
                 count += account.balance
             elif account is DebitAccount:
                 count -= account.balance
-        if not count == 0.0:
+        if count != 0.0:
             print("Opps, the initial accounts are not balanced. Please check the data.")
             for account in self.accounts:
                 os.remove(account.filePath)
             self.accounts.clear()
-        return
+            return False
+        return True
 
     def createAccount(self, accountType: AccountType, name: str, initialBalance: float):
         if accountType == AccountType.ASSET or accountType == AccountType.PROFIT or accountType == AccountType.EXPENSE:
@@ -98,6 +97,9 @@ class Company:
         self.analyzer.analyze()
 
     def executeCommand(self,command:Command):
+        if command is None:
+            print("Invalid command. Please try again.")
+            return
         if command.opt == "initialize-accounts":
             filePath = Path(command.args["filePath"])
             accountsInfo: pandas.DataFrame = pandas.read_csv(filePath)

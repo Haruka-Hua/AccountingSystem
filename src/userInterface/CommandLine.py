@@ -38,6 +38,9 @@ class CommandLine:
         #analyze data
         options.append("analyze")
         optArgs.append([])
+        #quit system
+        options.append("quit")
+        optArgs.append([])
         #print help
         options.append("help")
         optArgs.append([])
@@ -61,5 +64,3 @@ class CommandLine:
 
     def createCommand(self) -> Command:
         return Command(self.opt,dict(zip(self.optionInfo[self.opt],self.args)))
-
-
