@@ -143,7 +143,14 @@ class Company:
             self.analyzeData()
 
         elif command.opt == "help":
-            print("This is a help message.")
-            #todo: print help message
+            #print help message
+            print("Available commands:")
+            print("<create-account>: Create a new account. The initial balance will be set to 0.0.")
+            print("<transaction>: Add a new transaction.")
+            print("<file-transactions>: Add transactions from a CSV file.")
+            print("<report>: Generate and display a report.")
+            print("<analyze>: Analyze the data. Pie charts will be displayed to illustrate the composition of accounts.")
+            print("<help>: Print this help message.")
+            print("<quit>: Exit the program.")
 
         return
