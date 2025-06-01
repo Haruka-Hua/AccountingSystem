@@ -1,36 +1,33 @@
+import pandas as pd
 from pandas import DataFrame
-
-from src.object.Account import AccountType
-from src.object.Company import Company
+from src.object.Account import AccountType, prj_path
 from pathlib import Path
 import pandas
-
 
 class Report:
     assetLiabilityPath: Path
     profitPath: Path
 
     def __init__(self):
-        self.assetLiabilityPath = Path("data/reports/资产负债表")
-        self.profitPath = Path("data/reports/利润表")
+        self.assetLiabilityPath = prj_path.joinpath(Path("data/reports/资产负债表"))
+        self.profitPath = prj_path.joinpath(Path("data/reports/利润表"))
 
     def saveALReport(self, assets: DataFrame, liabilities: DataFrame, ownersEquity: DataFrame):
-        with open(self.assetLiabilityPath.with_suffix("/资产.csv"), "w+", newline="") as fp:
+        with open(self.assetLiabilityPath.joinpath(Path("资产.csv")), "w+", newline="") as fp:
             assets.to_csv(fp, index=False)
-        with open(self.assetLiabilityPath.with_suffix("/负债.csv"), "w+", newline="") as fp:
+        with open(self.assetLiabilityPath.joinpath(Path("负债.csv")), "w+", newline="") as fp:
             liabilities.to_csv(fp, index=False)
-        with open(self.assetLiabilityPath.with_suffix("/所有者权益.csv"),"w+",newline="") as fp:
+        with open(self.assetLiabilityPath.joinpath(Path("所有者权益.csv")),"w+",newline="") as fp:
             ownersEquity.to_csv(fp, index=False)
 
     def saveProfitReport(self, revenue: DataFrame, expenses: DataFrame):
-        with open(self.profitPath.with_suffix("/收入.csv"), "w+", newline="") as fp:
+        with open(self.profitPath.joinpath(Path("收入.csv")), "w+", newline="") as fp:
             revenue.to_csv(fp, index=False)
-        with open(self.profitPath.with_suffix("/费用.csv"), "w+", newline="") as fp:
+        with open(self.profitPath.joinpath(Path("费用.csv")), "w+", newline="") as fp:
             expenses.to_csv(fp, index=False)
 
 
 class Reporter:
-    company: Company
     assets: DataFrame
     liabilities: DataFrame
     ownersEquity: DataFrame
@@ -38,7 +35,8 @@ class Reporter:
     expenses: DataFrame
 
 
-    def __init__(self, company: Company):
+    def __init__(self, company):
+        from src.object.Company import Company
         self.company = company
         self.assets = DataFrame(columns = ["accountName", "balance"])
         self.liabilities = DataFrame(columns = ["accountName", "balance"])
@@ -48,17 +46,18 @@ class Reporter:
 
     def formReport(self):
         #form report
-        for account in self.company.accounts:
-            if account.acccountType == AccountType.ASSET:
-                self.assets.append({"accountName": account.name, "balance": account.balance})
+        for account in self.company.accounts.values():
+            newRow = pd.DataFrame([{"accountName": account.name, "balance": account.balance}])
+            if account.accountType == AccountType.ASSET:
+                self.assets = pd.concat([self.assets,newRow], ignore_index=True)
             elif account.accountType == AccountType.LIABILITY:
-                self.liabilities.append({"accountName": account.name, "balance": account.balance})
+                self.liabilities = pd.concat([self.liabilities,newRow], ignore_index=True)
             elif account.accountType == AccountType.OWNERS_EQUITY:
-                self.ownersEquity.append({"accountName": account.name, "balance": account.balance})
+                self.ownersEquity = pd.concat([self.ownersEquity,newRow], ignore_index=True)
             elif account.accountType == AccountType.REVENUE:
-                self.revenues.append({"accountName": account.name, "balance": account.balance})
+                self.revenues = pd.concat([self.revenues,newRow], ignore_index=True)
             elif account.accountType == AccountType.EXPENSE:
-                self.expenses.append({"accountName": account.name, "balance": account.balance})
+                self.expenses = pd.concat([self.expenses,newRow], ignore_index=True)
             else:
                 print(f"Invalid account type for {account.name}. Skipping.")
         #save reports to csv files

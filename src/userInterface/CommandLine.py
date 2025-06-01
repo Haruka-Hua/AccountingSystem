@@ -22,7 +22,7 @@ class CommandLine:
         #create options
         #initialize accounts
         options.append("initialize-accounts")
-        optArgs.append("filePath")
+        optArgs.append(["filePath"])
         #create account
         options.append("create-account")
         optArgs.append(["accountType","name"])
@@ -44,7 +44,7 @@ class CommandLine:
         #print help
         options.append("help")
         optArgs.append([])
-        self.optionInfo = dict.fromkeys(options,optArgs)
+        self.optionInfo = dict(zip(options, optArgs))
 
     def getNewCommand(self,message:str) -> Command:
         self.readLine(message)
@@ -63,4 +63,5 @@ class CommandLine:
         self.args = elements[1:]
 
     def createCommand(self) -> Command:
-        return Command(self.opt,dict(zip(self.optionInfo[self.opt],self.args)))
+        bindings = dict(zip(self.optionInfo[self.opt], self.args))
+        return Command(self.opt,bindings)

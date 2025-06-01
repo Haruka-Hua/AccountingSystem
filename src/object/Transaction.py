@@ -1,5 +1,4 @@
 from datetime import datetime
-import Account
 
 class Transaction:
     index: int

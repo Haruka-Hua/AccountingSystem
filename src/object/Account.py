@@ -1,9 +1,10 @@
 from enum import Enum
 from abc import ABC, abstractmethod
-from Transaction import *
+from src.object.Transaction import Transaction
 from pathlib import Path
 import csv
 
+prj_path = Path(__file__).parent.parent.parent
 
 class AccountType(Enum):
     DEFAULT = 0
@@ -16,17 +17,17 @@ class AccountType(Enum):
 
 def accountTypeConvert(accType: str) -> AccountType:
     accType = accType.lower()
-    if accType == "asset":
+    if accType == "资产":
         return AccountType.ASSET
-    elif accType == "liability":
+    elif accType == "负债":
         return AccountType.LIABILITY
-    elif accType == "owners-equity":
+    elif accType == "所有者权益":
         return AccountType.OWNERS_EQUITY
-    elif accType == "revenue":
+    elif accType == "收入":
         return AccountType.REVENUE
-    elif accType == "expense":
+    elif accType == "费用":
         return AccountType.EXPENSE
-    elif accType == "profit":
+    elif accType == "利润":
         return AccountType.PROFIT
     else:
         return AccountType.DEFAULT
@@ -51,7 +52,7 @@ class CreditAccount(Account):
         self.accountType = accountType
         self.name = name
         self.balance = initialBalance
-        self.filePath = Path(f"data/accounts/{name}.csv")
+        self.filePath = prj_path.joinpath(Path(f"data/accounts/{name}.csv"))
         with open(self.filePath, "w+", newline="") as fp:
             writer = csv.writer(fp)
             writer.writerow(self.header)
@@ -74,7 +75,7 @@ class DebitAccount(Account):
         self.accountType = accountType
         self.name = name
         self.balance = initialBalance
-        self.filePath = Path(f"data/accounts/{name}.csv")
+        self.filePath = prj_path.joinpath(Path(f"data/accounts/{name}.csv"))
         with open(self.filePath, "w+", newline="") as fp:
             writer = csv.writer(fp)
             writer.writerow(self.header)

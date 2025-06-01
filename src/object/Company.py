@@ -1,10 +1,12 @@
-from Account import *
-from Transaction import *
+from src.object.Account import *
+from src.object.Transaction import *
 from src.userInterface.CommandLine import *
-from src.utils.Analyzer import *
-from src.utils.Reporter import *
 import pandas
 import os
+
+from src.utils.Analyzer import Analyzer
+from src.utils.Reporter import Report, Reporter
+
 
 class Company:
     name: str
@@ -18,9 +20,15 @@ class Company:
         self.name = name
         self.accounts = {}
         self.transactions = []
-        analyzer = Analyzer(self)
-        reporter = Reporter(self)
-        report = Report()
+        self.analyzer = Analyzer(self)
+        self.reporter = Reporter(self)
+        self.report = Report()
+        #clear the data directory
+        dir_path = prj_path.joinpath(Path("data/accounts"))
+        for filename in os.listdir(dir_path):
+            filepath = dir_path.joinpath(Path(filename))
+            if os.path.isfile(filepath):
+                os.remove(filepath)
 
     def initAccounts(self,accountInfo: pandas.DataFrame)->bool:
         for index, row in accountInfo.iterrows():
@@ -126,7 +134,8 @@ class Company:
                 transactionsInfo = pandas.read_csv(filePath)
             except FileNotFoundError:
                 print("Sorry, the file does not exist, please check your spelling.")
-            for index, row in transactionsInfo:
+            print(transactionsInfo)
+            for index,row in transactionsInfo.iterrows():
                 date: datetime = datetime.strptime(row["date"],"%Y-%m-%d")
                 abstract: str = row["abstract"]
                 creditAccountName: str = row["credit"]

@@ -1,13 +1,15 @@
 from pandas import DataFrame, read_csv
-from src.object.Company import Company
+from pathlib import Path
 import matplotlib.pyplot as plt
 
+plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']
+plt.rcParams['axes.unicode_minus'] = False
 
 class Analyzer:
-    company: Company
     types = ["Assets", "Liabilities", "Owner's equities", "Revenues", "Liabilities"]
 
-    def __init__(self, company: Company):
+    def __init__(self, company):
+        from src.object.Company import Company
         self.company = company
 
     def analyzeSingleType(self,accType:str,typeInfo:DataFrame):
@@ -28,12 +30,12 @@ class Analyzer:
 
     def getTypeInfo(self,accType:str)->DataFrame:
         if accType=="Assets":
-            return read_csv(self.company.report.assetLiabilityPath.with_suffix("/资产.csv"))
+            return read_csv(self.company.report.assetLiabilityPath.joinpath(Path("资产.csv")),encoding="GBK")
         elif accType == "Liabilities":
-            return read_csv(self.company.report.assetLiabilityPath.with_suffix("/负债.csv"))
+            return read_csv(self.company.report.assetLiabilityPath.joinpath(Path("负债.csv")),encoding="GBK")
         elif accType == "Owner's equities":
-            return read_csv(self.company.report.assetLiabilityPath.with_suffix("/所有者权益.csv"))
+            return read_csv(self.company.report.assetLiabilityPath.joinpath(Path("所有者权益.csv")),encoding="GBK")
         elif accType == "Revenues":
-            return read_csv(self.company.report.profitPath.with_suffix("/收入.csv"))
+            return read_csv(self.company.report.profitPath.joinpath(Path("收入.csv")),encoding="GBK")
         elif accType == "Expenses":
-            return read_csv(self.company.report.profitPath.with_suffix("/费用.csv"))
+            return read_csv(self.company.report.profitPath.joinpath(Path("费用.csv")),encoding="GBK")

@@ -27,4 +27,7 @@ def main():
         if command.opt == "quit":
             break
         company.executeCommand(command)
-        print(f"Command {command.opt} executed successfully!")
+        print(f"Command <{command.opt}> executed successfully!")
+
+if __name__ == "__main__":
+    main()
