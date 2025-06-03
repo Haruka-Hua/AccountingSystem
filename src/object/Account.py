@@ -17,17 +17,17 @@ class AccountType(Enum):
 
 def accountTypeConvert(accType: str) -> AccountType:
     accType = accType.lower()
-    if accType == "资产":
+    if accType == "资产" or accType == "asset":
         return AccountType.ASSET
-    elif accType == "负债":
+    elif accType == "负债" or accType == "liability":
         return AccountType.LIABILITY
-    elif accType == "所有者权益":
+    elif accType == "所有者权益" or accType == "owner's_equity":
         return AccountType.OWNERS_EQUITY
-    elif accType == "收入":
+    elif accType == "收入" or accType == "revenue":
         return AccountType.REVENUE
-    elif accType == "费用":
+    elif accType == "费用" or accType == "expense":
         return AccountType.EXPENSE
-    elif accType == "利润":
+    elif accType == "利润" or accType == "profit":
         return AccountType.PROFIT
     else:
         return AccountType.DEFAULT

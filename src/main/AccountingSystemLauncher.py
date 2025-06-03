@@ -9,11 +9,17 @@ def main():
     #initialize accounts
     print("Welcome to the Accounting System!")
     print("Firstly let's initialize your accounts. We will use a csv file to do this.")
-    initialAccountPath:str = input("Please provide the file path of the csv file containing your accounts information: ")
-    cl.line = f"initialize-accounts {initialAccountPath}"
-    cl.parseLine()
-    command: Command = cl.createCommand()
-    company.executeCommand(command)
+    while True:
+        try:
+            initialAccountPath = input("Please enter the path to your initial accounts csv file: ")
+            cl.line = f"initialize-accounts {initialAccountPath}"
+            cl.parseLine()
+            command: Command = cl.createCommand()
+            company.executeCommand(command)
+            break
+        except FileNotFoundError:
+            print("File not found. Please check the path and try again.")
+            continue
 
     print("Accounts initialized successfully! Now you can start operating your accounts.")
     print("You can add transactions, form reports, analyze data, and more.")
@@ -26,8 +32,11 @@ def main():
             continue
         if command.opt == "quit":
             break
-        company.executeCommand(command)
-        print(f"Command <{command.opt}> executed successfully!")
+        try:
+            company.executeCommand(command)
+            print(f"Command <{command.opt}> executed successfully!")
+        except Exception:
+            print("Opps, something went wrong! Please check your command (arguments and files) and try again.")
 
 if __name__ == "__main__":
     main()

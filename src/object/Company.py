@@ -52,12 +52,15 @@ class Company:
         return True
 
     def createAccount(self, accountType: AccountType, name: str, initialBalance: float):
+        if name in self.accounts:
+            print(f"Account {name} already exists. Please choose a different name.")
+            return
         if accountType == AccountType.ASSET or accountType == AccountType.PROFIT or accountType == AccountType.EXPENSE:
             self.accounts[name] = CreditAccount(accountType, name, initialBalance)
         elif accountType == AccountType.LIABILITY or accountType == AccountType.OWNERS_EQUITY or accountType == AccountType.REVENUE:
             self.accounts[name] = DebitAccount(accountType, name, initialBalance)
         else:
-            print("Opps, invalid account type. Try again.")
+            raise ValueError(f"Invalid account type: {accountType}. Please choose a valid account type.")
 
     def addTransaction(self, transaction: Transaction):
         self.transactions.append(transaction)
@@ -66,17 +69,29 @@ class Company:
         if transaction.creditAccountName not in self.accounts:
             ans = input(f"{transaction.creditAccountName} does not exist. Do you want to create it?(Y/N)")
             if ans == "Y":
-                accountType: str = input("Type of the account: ")
-                command:Command = Command("create-account",{"accountType":accountType,"name":transaction.creditAccountName})
-                self.executeCommand(command)
+                while True:
+                    accountType: str = input("Type of the account: ")
+                    try:
+                        command:Command = Command("create-account",{"accountType":accountType,"name":transaction.creditAccountName})
+                        self.executeCommand(command)
+                        return True
+                    except ValueError as e:
+                        print(e)
+                        continue
             else:
                 return False
         if transaction.debitAccountName not in self.accounts:
             ans = input(f"{transaction.debitAccountName} does not exist. Do you want to create it?(Y/N)")
             if ans == "Y":
-                accountType: str = input("Type of the account: ")
-                command:Command = Command("create-account",{"accountType":accountType,"name":transaction.debitAccountName})
-                self.executeCommand(command)
+                while True:
+                    accountType: str = input("Type of the account: ")
+                    try:
+                        command:Command = Command("create-account",{"accountType":accountType,"name":transaction.debitAccountName})
+                        self.executeCommand(command)
+                        return True
+                    except ValueError as e:
+                        print(e)
+                        continue
             else:
                 return False
         return True
@@ -154,12 +169,19 @@ class Company:
         elif command.opt == "help":
             #print help message
             print("Available commands:")
-            print("<create-account>: Create a new account. The initial balance will be set to 0.0.")
-            print("<transaction>: Add a new transaction.")
-            print("<file-transactions>: Add transactions from a CSV file.")
-            print("<report>: Generate and display a report.")
-            print("<analyze>: Analyze the data. Pie charts will be displayed to illustrate the composition of accounts.")
-            print("<help>: Print this help message.")
-            print("<quit>: Exit the program.")
+            print("<create-account>: Create a new account. The initial balance will be set to 0.0.\n"
+                  "\tFormat: <create-account> <accountType> <name>")
+            print("<transaction>: Add a new transaction.\n"
+                  "\tFormat: <transaction> <date> <abstract> <creditAccountName> <debitAccountName> <amount>")
+            print("<file-transactions>: Add transactions from a CSV file.\n"
+                  "\tFormat: <file-transactions> <filePath>")
+            print("<report>: Generate and display a report.\n"
+                  "\tFormat: <report>")
+            print("<analyze>: Analyze the data. Pie charts will be displayed to illustrate the composition of accounts.\n"
+                  "\tFormat: <analyze>")
+            print("<help>: Print this help message.\n"
+                  "\tFormat: <help>")
+            print("<quit>: Exit the program.\n"
+                  "\tFormat: <quit>")
 
         return

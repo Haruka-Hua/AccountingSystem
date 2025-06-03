@@ -6,19 +6,22 @@ plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']
 plt.rcParams['axes.unicode_minus'] = False
 
 class Analyzer:
-    types = ["Assets", "Liabilities", "Owner's equities", "Revenues", "Liabilities"]
+    types = ["Assets", "Liabilities", "Owner's equities", "Revenues", "Expenses"]
 
     def __init__(self, company):
         from src.object.Company import Company
         self.company = company
 
     def analyzeSingleType(self,accType:str,typeInfo:DataFrame):
+        typeInfo = typeInfo[typeInfo["balance"] != 0]  # Filter out zero balances
         labels = typeInfo["accountName"].tolist()
         balances = typeInfo["balance"].tolist()
-        plt.figure(figsize=(10, 6))
-        plt.pie(balances, labels=labels, autopct='%1.1f%%', startangle=140)
-        plt.axis("equal")
-        plt.title(f"{accType} Composition")
+        colors = plt.get_cmap('Set3').colors
+        plt.figure(figsize=(10,8))
+        patches, texts, autotexts = plt.pie(balances, colors=colors,autopct='%1.1f%%', startangle=90, pctdistance=1.1)
+        plt.title(f"{accType} Composition", fontsize=16)
+        plt.legend(patches,labels,loc='upper left', bbox_to_anchor=(0, 1))
+        plt.axis('equal')
         plt.show()
         return
 
