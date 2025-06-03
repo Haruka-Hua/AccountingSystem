@@ -3,7 +3,8 @@ from pandas import DataFrame
 from src.object.Account import AccountType, prj_path
 from pathlib import Path
 import os
-import pandas
+import warnings
+warnings.filterwarnings("ignore")
 
 class Report:
     assetLiabilityPath: Path
@@ -80,25 +81,25 @@ class Reporter:
 
     def displayReport(self):
         #display report
-        print("-----------资产负债表-----------")
-        print("Assets:")
-        print(self.assets)
-        print("Total Assets:", self.assets["balance"].sum())
-        print("Liabilities:")
-        print(self.liabilities)
-        print("Total Liabilities:", self.liabilities["balance"].sum())
-        print("Owner's Equity:")
-        print(self.ownersEquity)
-        print("Total Owner's Equity:", self.ownersEquity["balance"].sum())
-        print("Total Liabilities and Owner's Equity:", self.liabilities["balance"].sum() + self.ownersEquity["balance"].sum())
+        print("\n-----------资产负债表-----------")
+        print("[Assets]")
+        print(self.assets, "\n")
+        print("Total Assets:", self.assets["balance"].sum(),"\n")
+        print("[Liabilities]")
+        print(self.liabilities, "\n")
+        print("Total Liabilities:", self.liabilities["balance"].sum(),"\n")
+        print("[Owner's Equity]")
+        print(self.ownersEquity, "\n")
+        print("Total Owner's Equity:", self.ownersEquity["balance"].sum(),"\n")
+        print("Total Liabilities and Owner's Equity:", self.liabilities["balance"].sum() + self.ownersEquity["balance"].sum(),"\n\n")
 
         print("-----------利润表-----------")
-        print("Revenues:")
-        print(self.revenues)
-        print("Total Revenues:", self.revenues["balance"].sum())
-        print("Expenses:")
-        print(self.expenses)
-        print("Total Expenses:", self.expenses["balance"].sum())
-        print("Net Profit:", self.revenues["balance"].sum() - self.expenses["balance"].sum())
+        print("[Revenues]")
+        print(self.revenues, "\n")
+        print("Total Revenues:", self.revenues["balance"].sum(),"\n")
+        print("[Expenses]")
+        print(self.expenses, "\n")
+        print("Total Expenses:", self.expenses["balance"].sum(),"\n")
+        print("Net Profit:", self.revenues["balance"].sum() - self.expenses["balance"].sum(),"\n")
 
         return
