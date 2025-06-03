@@ -15,3 +15,13 @@ class Transaction:
         self.creditAccountName = creditAccountName
         self.debitAccountName = debitAccountName
         self.amount = amount
+
+    def getTransactionInfo(self)->dict:
+        return {
+            "index": self.index,
+            "date": self.date,
+            "abstract": self.abstract,
+            "creditAccountName": self.creditAccountName,
+            "debitAccountName": self.debitAccountName,
+            "amount": self.amount
+        }

@@ -1,7 +1,7 @@
 from src.object.Account import *
 from src.object.Transaction import *
 from src.userInterface.CommandLine import *
-import pandas
+import pandas as pd
 import os
 
 from src.utils.Analyzer import Analyzer
@@ -30,7 +30,7 @@ class Company:
             if os.path.isfile(filepath):
                 os.remove(filepath)
 
-    def initAccounts(self,accountInfo: pandas.DataFrame)->bool:
+    def initAccounts(self,accountInfo: pd.DataFrame)->bool:
         for index, row in accountInfo.iterrows():
             accountType: AccountType = accountTypeConvert(row["accountType"])
             name: str = row["name"]
@@ -110,6 +110,15 @@ class Company:
         else:
             print("Invalid transaction! Try again!")
 
+    def showAllTransactions(self):
+        df = pd.DataFrame([t.getTransactionInfo() for t in self.transactions])
+        if df.empty:
+            print("No transactions currently.")
+        else:
+            pd.set_option('display.unicode.east_asian_width', True)  # 让中英文对齐
+            pd.set_option('display.width', 120)  # 设置显示宽度
+            print(df.to_string(index=False))
+
     def formReport(self):
         self.reporter.formReport()
 
@@ -119,13 +128,34 @@ class Company:
     def analyzeData(self):
         self.analyzer.analyze()
 
+    def displayHelp(self):
+        # print help message
+        print("Available commands:")
+        print("<create-account>: Create a new account. The initial balance will be set to 0.0.\n"
+              "\tFormat: <create-account> <accountType> <name>")
+        print("<transaction>: Add a new transaction.\n"
+              "\tFormat: <transaction> <date> <abstract> <creditAccountName> <debitAccountName> <amount>")
+        print("<file-transactions>: Add transactions from a CSV file.\n"
+              "\tFormat: <file-transactions> <filePath>")
+        print("<report>: Generate and display a report.\n"
+              "\tFormat: <report>")
+        print("<analyze>: Analyze the data. Pie charts will be displayed to illustrate the composition of accounts.\n"
+              "\tFormat: <analyze>")
+        print("<show-transactions>: Display all transactions.\n"
+              "\tFormat: <show-transactions>")
+        print("<help>: Print this help message.\n"
+              "\tFormat: <help>")
+        print("<quit>: Exit the program.\n"
+              "\tFormat: <quit>")
+        return
+
     def executeCommand(self,command:Command):
         if command is None:
             print("Invalid command. Please try again.")
             return
         if command.opt == "initialize-accounts":
             filePath = Path(command.args["filePath"])
-            accountsInfo: pandas.DataFrame = pandas.read_csv(filePath)
+            accountsInfo: pd.DataFrame = pd.read_csv(filePath)
             self.initAccounts(accountsInfo)
 
         elif command.opt == "create-account":
@@ -144,9 +174,9 @@ class Company:
 
         elif command.opt == "file-transactions":
             filePath = Path(command.args["filePath"])
-            transactionsInfo: pandas.DataFrame = None
+            transactionsInfo: pd.DataFrame = None
             try:
-                transactionsInfo = pandas.read_csv(filePath)
+                transactionsInfo = pd.read_csv(filePath)
             except FileNotFoundError:
                 print("Sorry, the file does not exist, please check your spelling.")
             print(transactionsInfo)
@@ -166,22 +196,9 @@ class Company:
         elif command.opt == "analyze":
             self.analyzeData()
 
-        elif command.opt == "help":
-            #print help message
-            print("Available commands:")
-            print("<create-account>: Create a new account. The initial balance will be set to 0.0.\n"
-                  "\tFormat: <create-account> <accountType> <name>")
-            print("<transaction>: Add a new transaction.\n"
-                  "\tFormat: <transaction> <date> <abstract> <creditAccountName> <debitAccountName> <amount>")
-            print("<file-transactions>: Add transactions from a CSV file.\n"
-                  "\tFormat: <file-transactions> <filePath>")
-            print("<report>: Generate and display a report.\n"
-                  "\tFormat: <report>")
-            print("<analyze>: Analyze the data. Pie charts will be displayed to illustrate the composition of accounts.\n"
-                  "\tFormat: <analyze>")
-            print("<help>: Print this help message.\n"
-                  "\tFormat: <help>")
-            print("<quit>: Exit the program.\n"
-                  "\tFormat: <quit>")
+        elif command.opt == "show-transactions":
+            self.showAllTransactions()
 
+        elif command.opt == "help":
+            self.displayHelp()
         return

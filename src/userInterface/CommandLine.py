@@ -38,6 +38,9 @@ class CommandLine:
         #analyze data
         options.append("analyze")
         optArgs.append([])
+        #show transactions
+        options.append("show-transactions")
+        optArgs.append([])
         #quit system
         options.append("quit")
         optArgs.append([])
