@@ -28,7 +28,7 @@ class CommandLine:
         optArgs.append(["accountType","name"])
         #add transaction
         options.append("transaction")
-        optArgs.append(["date","abstract","credit","debit","amount"])
+        optArgs.append(["date","abstract","debit","credit","amount"])
         #add transactions(from file)
         options.append("file-transactions")
         optArgs.append(["filePath"])

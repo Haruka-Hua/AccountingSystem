@@ -20,6 +20,10 @@ def main():
         except FileNotFoundError:
             print("File not found. Please check the path and try again.")
             continue
+        #if initial balance is not balanced
+        except ValueError as e:
+            print(e)
+            continue
 
     print("Accounts initialized successfully! Now you can start operating your accounts.")
     print("You can add transactions, form reports, analyze data, and more.")

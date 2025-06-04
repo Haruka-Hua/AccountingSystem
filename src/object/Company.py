@@ -7,7 +7,6 @@ import os
 from src.utils.Analyzer import Analyzer
 from src.utils.Reporter import Report, Reporter
 
-
 class Company:
     name: str
     accounts: dict[str:Account]
@@ -38,14 +37,14 @@ class Company:
             self.createAccount(accountType, name, initialBalance)
         #check balance
         count: float = 0.0
-        for account in self.accounts:
-            if account is CreditAccount:
+        for account in self.accounts.values():
+            if isinstance(account, DebitAccount):
                 count += account.balance
-            elif account is DebitAccount:
+            elif isinstance(account, CreditAccount):
                 count -= account.balance
         if count != 0.0:
             print("Opps, the initial accounts are not balanced. Please check the data.")
-            for account in self.accounts:
+            for account in self.accounts.values():
                 os.remove(account.filePath)
             self.accounts.clear()
             return False
@@ -56,9 +55,9 @@ class Company:
             print(f"Account {name} already exists. Please choose a different name.")
             return
         if accountType == AccountType.ASSET or accountType == AccountType.PROFIT or accountType == AccountType.EXPENSE:
-            self.accounts[name] = CreditAccount(accountType, name, initialBalance)
-        elif accountType == AccountType.LIABILITY or accountType == AccountType.OWNERS_EQUITY or accountType == AccountType.REVENUE:
             self.accounts[name] = DebitAccount(accountType, name, initialBalance)
+        elif accountType == AccountType.LIABILITY or accountType == AccountType.OWNERS_EQUITY or accountType == AccountType.REVENUE:
+            self.accounts[name] = CreditAccount(accountType, name, initialBalance)
         else:
             raise ValueError(f"Invalid account type: {accountType}. Please choose a valid account type.")
 
@@ -66,20 +65,6 @@ class Company:
         self.transactions.append(transaction)
 
     def checkTransactionAccounts(self,transaction:Transaction)->bool:
-        if transaction.creditAccountName not in self.accounts:
-            ans = input(f"{transaction.creditAccountName} does not exist. Do you want to create it?(Y/N)")
-            if ans == "Y":
-                while True:
-                    accountType: str = input("Type of the account: ")
-                    try:
-                        command:Command = Command("create-account",{"accountType":accountType,"name":transaction.creditAccountName})
-                        self.executeCommand(command)
-                        return True
-                    except ValueError as e:
-                        print(e)
-                        continue
-            else:
-                return False
         if transaction.debitAccountName not in self.accounts:
             ans = input(f"{transaction.debitAccountName} does not exist. Do you want to create it?(Y/N)")
             if ans == "Y":
@@ -94,18 +79,32 @@ class Company:
                         continue
             else:
                 return False
+        if transaction.creditAccountName not in self.accounts:
+            ans = input(f"{transaction.creditAccountName} does not exist. Do you want to create it?(Y/N)")
+            if ans == "Y":
+                while True:
+                    accountType: str = input("Type of the account: ")
+                    try:
+                        command:Command = Command("create-account",{"accountType":accountType,"name":transaction.creditAccountName})
+                        self.executeCommand(command)
+                        return True
+                    except ValueError as e:
+                        print(e)
+                        continue
+            else:
+                return False
         return True
 
     def checkNullData(self,transaction)->bool:
-        return ((not transaction.date is None) and (not transaction.creditAccountName is None)
-            and (not transaction.debitAccountName is None) and (not transaction.amount is None))
+        return ((not transaction.date is None) and (not transaction.debitAccountName is None)
+            and (not transaction.creditAccountName is None) and (not transaction.amount is None))
 
     def handleTransaction(self, transaction: Transaction):
         if  self.checkNullData(transaction) and self.checkTransactionAccounts(transaction):
-            creditSide:Account = self.accounts[transaction.creditAccountName]
             debitSide:Account = self.accounts[transaction.debitAccountName]
-            creditSide.handleCreditTransaction(transaction)
+            creditSide:Account = self.accounts[transaction.creditAccountName]
             debitSide.handleDebitTransaction(transaction)
+            creditSide.handleCreditTransaction(transaction)
             self.addTransaction(transaction)
         else:
             print("Invalid transaction! Try again!")
@@ -134,7 +133,7 @@ class Company:
         print("<create-account>: Create a new account. The initial balance will be set to 0.0.\n"
               "\tFormat: <create-account> <accountType> <name>")
         print("<transaction>: Add a new transaction.\n"
-              "\tFormat: <transaction> <date> <abstract> <creditAccountName> <debitAccountName> <amount>")
+              "\tFormat: <transaction> <date> <abstract> <debitAccountName> <creditAccountName> <amount>")
         print("<file-transactions>: Add transactions from a CSV file.\n"
               "\tFormat: <file-transactions> <filePath>")
         print("<report>: Generate and display a report.\n"
@@ -156,7 +155,8 @@ class Company:
         if command.opt == "initialize-accounts":
             filePath = Path(command.args["filePath"])
             accountsInfo: pd.DataFrame = pd.read_csv(filePath)
-            self.initAccounts(accountsInfo)
+            if not self.initAccounts(accountsInfo):
+                raise ValueError("The initial accounts are not balanced. Please check the data.")
 
         elif command.opt == "create-account":
             accountType: AccountType = accountTypeConvert(command.args["accountType"])
@@ -166,10 +166,10 @@ class Company:
         elif command.opt == "transaction":
             date: datetime = datetime.strptime(command.args["date"],"%Y-%m-%d")
             abstract: str = command.args["abstract"]
-            creditAccountName: str = command.args["credit"]
             debitAccountName: str = command.args["debit"]
+            creditAccountName: str = command.args["credit"]
             amount: float = float(command.args["amount"])
-            transaction = Transaction(len(self.transactions), date, abstract, creditAccountName, debitAccountName, amount)
+            transaction = Transaction(len(self.transactions), date, abstract, debitAccountName, creditAccountName, amount)
             self.handleTransaction(transaction)
 
         elif command.opt == "file-transactions":
@@ -183,10 +183,10 @@ class Company:
             for index,row in transactionsInfo.iterrows():
                 date: datetime = datetime.strptime(row["date"],"%Y-%m-%d")
                 abstract: str = row["abstract"]
-                creditAccountName: str = row["credit"]
                 debitAccountName: str = row["debit"]
+                creditAccountName: str = row["credit"]
                 amount: float = float(row["amount"])
-                transaction = Transaction(len(self.transactions),date,abstract,creditAccountName,debitAccountName,amount)
+                transaction = Transaction(len(self.transactions),date,abstract,debitAccountName,creditAccountName,amount)
                 self.handleTransaction(transaction)
 
         elif command.opt == "report":

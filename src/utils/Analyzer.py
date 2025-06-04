@@ -19,7 +19,7 @@ class Analyzer:
         colors = plt.get_cmap('Set3').colors
         plt.figure(figsize=(10,8))
         patches, texts, autotexts = plt.pie(balances, colors=colors,autopct='%1.1f%%', startangle=90, pctdistance=1.1)
-        plt.title(f"{accType} Composition", fontsize=16)
+        plt.suptitle(f"{accType} Composition", fontsize=16, fontweight='bold', x=0.5, y=0.95)
         plt.legend(patches,labels,loc='upper left', bbox_to_anchor=(0, 1))
         plt.axis('equal')
         plt.show()
