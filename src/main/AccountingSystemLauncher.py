@@ -3,7 +3,7 @@ from src.userInterface.CommandLine import CommandLine,Command
 
 def main():
     cl = CommandLine()
-    companyName = input("Name your company: ")
+    companyName = input("Name your company:\n>>> ")
     company = Company(companyName)
 
     #initialize accounts
@@ -11,7 +11,7 @@ def main():
     print("Firstly let's initialize your accounts. We will use a csv file to do this.")
     while True:
         try:
-            initialAccountPath = input("Please enter the path to your initial accounts csv file: ")
+            initialAccountPath = input("Please enter the path to your initial accounts csv file:\n>>> ")
             cl.line = f"initialize-accounts {initialAccountPath}"
             cl.parseLine()
             command: Command = cl.createCommand()
@@ -31,7 +31,7 @@ def main():
 
     #main loop
     while True:
-        command: Command = cl.getNewCommand("Please enter a command: ")
+        command: Command = cl.getNewCommand("Please enter a command:\n>>> ")
         if command is None:
             continue
         if command.opt == "quit":
